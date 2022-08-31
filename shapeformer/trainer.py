@@ -83,15 +83,17 @@ class Trainer():
             profiler="simple",
             check_val_every_n_epoch=self.trainer_opt['check_val_every_n_epoch'],
             # auto_lr_find=self.trainer_opt['auto_lr_find'],
-            terminate_on_nan=True,
+            # terminate_on_nan=True, # Deprecated: use "detect_anomaly" instead.
+            detect_anomaly=True,
             callbacks=self.callbacks,
             # progress_bar_refresh_rate=0,
             # train_percent_check=1.,
         )
         self.OtherTrainerOptions = dict(
             logger=logger,
-            accelerator=trainer_opt['accelerator'],
-            resume_from_checkpoint=self.resume_from_checkpoint,
+            # accelerator=trainer_opt['accelerator'], # "accelerator" argument deprecated. Use "strategy" instead.
+            strategy=trainer_opt['accelerator'],
+            # resume_from_checkpoint=self.resume_from_checkpoint, # Deprecated: feed to .fit(ckpt_path=) instead.
         )
         print("!!!!!!!!!!!!!!! Max epochs",
               self.MainTrainerOptions["max_epochs"])
@@ -156,7 +158,8 @@ class Trainer():
             dirpath=self.minfo["checkpoints_dir"],
             save_top_k=trainer_opt["save_top_k"],
             verbose=True,
-            period=1,
+            every_n_epochs=1,
+            # period=1, # Deprecated in favor of every_n_val_epochs, later renamed to every_n_epochs.
         )
         early_stop_callback = EarlyStopping(
             monitor='val/loss',
@@ -197,7 +200,8 @@ class Trainer():
         self.data_module.setup()
         print("Test!!", len(self.data_module.train_set),
               len(self.data_module.val_set))
-        self.trainer.fit(self.model, self.data_module)
+        # self.trainer.fit(self.model, self.data_module)
+        self.trainer.fit(self.model, self.data_module, ckpt_path=self.resume_from_checkpoint)
         print("Model trained, best model path: ",
               self.checkpoint_callback.best_model_path)
         self.test(resume_from=self.checkpoint_callback.best_model_path)

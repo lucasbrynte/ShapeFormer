@@ -29,7 +29,7 @@ class DataModule(pl.LightningDataModule):
         self.__dict__.update(locals())
         self.test_batch_size = test_batch_size if test_batch_size is not None else batch_size
         self.val_batch_size = val_batch_size if val_batch_size is not None else test_batch_size
-        self.dims = (1, 1, 1)
+        # self.dims = (1, 1, 1) # Deprecated
         self.pin_memory = False
 
     def setup(self, stage=None):
