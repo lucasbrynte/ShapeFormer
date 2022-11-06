@@ -257,6 +257,11 @@ def normalize_coordinate(p, padding=0.1, plane='xz'):
         xy_new[xy_new < 0] = 0.0
     return xy_new
 
+# This function does not perform dynamic scaling, but merely the following:
+# - "Padding" / shrinking, e.g. [-0.55, 0.55] -> [-0.5, 0.5].
+# - Shift by 0.5: [-0.5, 0.5] -> [0, 1]
+# - Saturate values exceeding [0, 1] interval. This roughly corresponds to [-0.55, 0.55] in unnormalized coordinates.
+# Hopefully, there is a true assumption that the [-0.55, 0.55] interval indeed encompasses the input data.
 def normalize_3d_coordinate(p, padding=0.1):
     ''' Normalize coordinate to [0, 1] for unit cube experiments.
         Corresponds to our 3D model
@@ -302,11 +307,13 @@ def coordinate2index(x, reso, coord_type='2d', c2i_order="original"):
         Corresponds to our 3D model
 
     Args:
-        x (tensor): coordinate
+        x (tensor): coordinate, shape (B, N, 2) or (B, N, 3)
         reso (int): defined resolution
         coord_type (str): coordinate type
     '''
+    # Map [0, 1] coordinates to voxel indices:
     x = (x * reso).long()
+    # Next we determine the linear voxel index.
     if coord_type == '2d': # plane
         if c2i_order=="original":
             index = x[:, :, 0] + reso * x[:, :, 1]
@@ -317,7 +324,8 @@ def coordinate2index(x, reso, coord_type='2d', c2i_order="original"):
             index = x[:, :, 0] + reso * (x[:, :, 1] + reso * x[:, :, 2])
         else:
             index = x[:, :, 2] + reso * (x[:, :, 1] + reso * x[:, :, 0])
-    index = index[:, None, :]
+    # Add singleton "channel" dimension along which the indices may be broadcasted. (All channels obviously should have the same voxel index as there is no spatial difference across channels)
+    index = index[:, None, :] # Shape (B, 1, N)
     return index
 
 def coord2index(p, vol_range, reso=None, plane='xz'):

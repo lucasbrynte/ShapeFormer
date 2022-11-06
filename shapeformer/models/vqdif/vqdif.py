@@ -61,6 +61,7 @@ class VQDIF(pl.LightningModule):
         # quant_feat: (res, res, res)
         max_limit = 256**3
         if Xtg.shape[1] > max_limit:
+            # If there are too many probes, they are split up in separate batches.
             with torch.no_grad():
                 batch_xtg = torch.split(Xtg, max_limit, dim=1)
                 b_ytgs = []
@@ -78,8 +79,7 @@ class VQDIF(pl.LightningModule):
     def forward(self, Xbd, Xtg, **kwargs):
         # Xbd: [B, num_pts, x_dim], Xtg: [B, num_probes, x_dim]
         B, num_pts, x_dim = Xbd.shape
-        # (B, C, res, res, res)
-        grid_feat, grid_mask = self.encode(Xbd)
+        grid_feat, grid_mask = self.encode(Xbd) # (B, C, res, res, res) and (B, res, res, res)
         if self.quantizer_opt is not None:
             quant_feat, quant_feat_st, quant_ind, quant_diff = self.quantizer(
                 grid_feat)
@@ -246,6 +246,8 @@ class VisSparseRecon3D(plutil.VisCallback):
         #     out = dict(logits=out)
         # return {"logits":out["logits"], "batch":batch}
 
+        # self.Xct_as_Xbd, if True, assigns the partial point cloud "Xct" to the Xbd variable.
+        # This, however, is not the class default.
         Xbd = batch["Xbd"] if (
             "Xbd" in batch and self.Xct_as_Xbd == False) else batch["Xct"]
         quant_ind, mode, encoded = self.pl_module.quantize_cloud(Xbd)
@@ -269,12 +271,15 @@ class VisSparseRecon3D(plutil.VisCallback):
         return ptutil.ths2nps(ret)
 
     def visualize_batch(self, computed, input_name=""):
+        # The input argument "computed" is basically the output of above method "compute_batch".
         computed = ptutil.ths2nps(computed)
         batch, logits, quant_ind, sparse_quant_ind = computed["batch"], computed[
             "logits"], computed["quant_ind"], computed["sparse"]
         quant_ind = convonet_to_shapeformer(quant_ind)
+        # Apply sigmoid on computed["logits"], to retrieve predicted occupancy values:
         occupancy = nputil.sigmoid(logits.reshape(-1))
         Xtg = batch['Xtg'][0] if "Xtg" in batch else None
+        # Grid:
         all_Xtg = self.all_Xtg.numpy()
         imgs = {}
         if 'Ytg' in batch and self.vis_Ytg == True:

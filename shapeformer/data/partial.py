@@ -132,6 +132,7 @@ class VirtualScanSelector():
         #C = self.manual_cameras[179]
         #else:
         C = geoutil.sample_sphere(1)[0]*self.radius
+        # Implements the hidden point removal (HPR) operator from the paper "Direct visibility of point sets", Katz et al. (SIGGRAPH 2007).
         Xct = geoutil.hidden_point_removal(Xbd, C)
         if Xct.shape[0]<=2:
             print("warning, virtual scanned points less than 2")
