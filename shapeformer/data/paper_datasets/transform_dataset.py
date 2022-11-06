@@ -20,14 +20,16 @@ from scipy.spatial.transform import Rotation as R
 def apply_random_rotation(points):
     r = R.random()
     return r.apply(points), r
-def apply_random_rotation_axis(points, axis=1):
+def apply_rotation_axis(points, angle, axis=1):
     dim = points.shape[-1]
     zhou = np.zeros(dim)
     zhou[axis] = 1
-    random_angle = np.random.rand()*2*np.pi
-    r = R.from_rotvec( random_angle * zhou)
+    r = R.from_rotvec( angle * zhou)
     rotated = r.apply(points)
     return rotated, r
+def apply_random_rotation_axis(points, axis=1):
+    random_angle = np.random.rand()*2*np.pi
+    return apply_rotation_axis(points, random_angle, axis=1)
 def apply_random_scaling(points, max_bound=0.99):
     extent = np.abs(points).max()
     max_ratio = max_bound / extent
