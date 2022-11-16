@@ -33,9 +33,16 @@ class VQDIF(pl.LightningModule):
         self.criterion = VQLoss(beta=vq_beta)
 
     def encode(self, Xbd, **kwargs):
-        assert torch.all(Xbd.abs() <= 1.0)
+        """
+        Xbd: Input point cloud, shape (B, N, 3)
+        """
+        assert len(Xbd.shape) == 3
+        assert Xbd.shape[2] == 3
 
-        grid_feat, grid_mask = self.encoder(Xbd/2.)  # [-1,1] -> [-.5,.5]
+        assert torch.all(Xbd.abs() <= 1.0)
+        Xbd = Xbd / 2. # [-1,1] -> [-.5,.5]
+
+        grid_feat, grid_mask = self.encoder(Xbd)
         return grid_feat, grid_mask
 
     def encode_quant(self, Xbd, **kwargs):

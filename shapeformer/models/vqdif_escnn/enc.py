@@ -126,7 +126,12 @@ class LocalPoolPointnet(nn.Module):
 
 
     def forward(self, p):
-        batch_size, T, D = p.size()
+        """
+        p: Input point cloud, shape (B, N, 3)
+        """
+        assert len(p.shape) == 3
+        assert p.shape[2] == 3
+        # batch_size, T, D = p.size()
 
         # acquire the index for each point
         assert self.plane_type == 'grid'
