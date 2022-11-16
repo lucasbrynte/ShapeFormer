@@ -74,10 +74,10 @@ class LocalDecoder(nn.Module):
         return c
 
 
-    def forward(self, p, c_grid, **kwargs):
+    def forward(self, c_grid, p, **kwargs):
         # Inputs:
-        # - p: "probes" at which to evaluate implicit decoder. Shape (B, N, 3)
         # - c_grid: dense 16x16x16 feature grid. Shape (B, C, 16, 16, 16)
+        # - p: "probes" at which to evaluate implicit decoder. Shape (B, N, 3)
 
         # unet & upsample
         # in & out: (B, k*C, res/k, res/k, res/k), k=2**downsample_steps

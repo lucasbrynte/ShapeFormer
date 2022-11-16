@@ -66,10 +66,10 @@ class VQDIF(pl.LightningModule):
                 batch_xtg = torch.split(Xtg, max_limit, dim=1)
                 b_ytgs = []
                 for b_xtg in batch_xtg:
-                    b_ytgs.append(self.decoder(b_xtg/2, grid_feat))
+                    b_ytgs.append(self.decoder(grid_feat, b_xtg/2))
                 Ytg_logits = torch.cat(b_ytgs, dim=1)
         else:
-            Ytg_logits = self.decoder(Xtg/2., grid_feat)  # [-1,1] -> [-.5,.5]
+            Ytg_logits = self.decoder(grid_feat, Xtg/2.)  # [-1,1] -> [-.5,.5]
         return dict(logits=Ytg_logits)
 
     def decode_index(self, code_ind, Xtg):
