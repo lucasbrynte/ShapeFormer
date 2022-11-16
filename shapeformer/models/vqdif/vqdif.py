@@ -33,6 +33,8 @@ class VQDIF(pl.LightningModule):
         self.criterion = VQLoss(beta=vq_beta)
 
     def encode(self, Xbd, **kwargs):
+        assert torch.all(Xbd.abs() <= 1.0)
+
         grid_feat, grid_mask = self.encoder(Xbd/2.)  # [-1,1] -> [-.5,.5]
         return grid_feat, grid_mask
 
