@@ -1,8 +1,9 @@
-import torch
+# import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .layers import ResnetBlockFC
-from .common import normalize_coordinate, normalize_3d_coordinate, map2local
+from .common import normalize_3d_coordinate
+# from .common import normalize_coordinate, map2local
 
 from .unet3d import UNet3D
 from .updown import Upsampler
@@ -14,6 +15,10 @@ class LocalDecoder(nn.Module):
     Args:
         dim (int): input dimension
         c_dim (int): dimension of latent conditioned code c
+        unet3d (bool): weather to use 3D U-Net
+        unet3d_kwargs (dict): 3D U-Net parameters
+        upsampler (bool): weather to use upsampler
+        upsampler_kwargs (dict): upsampler parameters
         hidden_size (int): hidden size of Decoder network
         n_blocks (int): number of blocks ResNetBlockFC layers
         leaky (bool): whether to use leaky ReLUs

@@ -2,7 +2,7 @@
 Code from the 3D UNet implementation:
 https://github.com/wolny/pytorch-3dunet/
 '''
-import importlib
+# import importlib
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -491,55 +491,55 @@ class UNet3D(Abstract3DUNet):
                                      **kwargs)
 
 
-class ResidualUNet3D(Abstract3DUNet):
-    """
-    Residual 3DUnet model implementation based on https://arxiv.org/pdf/1706.00120.pdf.
-    Uses ExtResNetBlock as a basic building block, summation joining instead
-    of concatenation joining and transposed convolutions for upsampling (watch out for block artifacts).
-    Since the model effectively becomes a residual net, in theory it allows for deeper UNet.
-    """
+# class ResidualUNet3D(Abstract3DUNet):
+#     """
+#     Residual 3DUnet model implementation based on https://arxiv.org/pdf/1706.00120.pdf.
+#     Uses ExtResNetBlock as a basic building block, summation joining instead
+#     of concatenation joining and transposed convolutions for upsampling (watch out for block artifacts).
+#     Since the model effectively becomes a residual net, in theory it allows for deeper UNet.
+#     """
 
-    def __init__(self, in_channels, out_channels, final_sigmoid=True, f_maps=64, layer_order='gcr',
-                 num_groups=8, num_levels=5, is_segmentation=True, **kwargs):
-        super(ResidualUNet3D, self).__init__(in_channels=in_channels, out_channels=out_channels,
-                                             final_sigmoid=final_sigmoid,
-                                             basic_module=ExtResNetBlock, f_maps=f_maps, layer_order=layer_order,
-                                             num_groups=num_groups, num_levels=num_levels,
-                                             is_segmentation=is_segmentation,
-                                             **kwargs)
-
-
-def get_model(config):
-    def _model_class(class_name):
-        m = importlib.import_module('pytorch3dunet.unet3d.model')
-        clazz = getattr(m, class_name)
-        return clazz
-
-    assert 'model' in config, 'Could not find model configuration'
-    model_config = config['model']
-    model_class = _model_class(model_config['name'])
-    return model_class(**model_config)
+#     def __init__(self, in_channels, out_channels, final_sigmoid=True, f_maps=64, layer_order='gcr',
+#                  num_groups=8, num_levels=5, is_segmentation=True, **kwargs):
+#         super(ResidualUNet3D, self).__init__(in_channels=in_channels, out_channels=out_channels,
+#                                              final_sigmoid=final_sigmoid,
+#                                              basic_module=ExtResNetBlock, f_maps=f_maps, layer_order=layer_order,
+#                                              num_groups=num_groups, num_levels=num_levels,
+#                                              is_segmentation=is_segmentation,
+#                                              **kwargs)
 
 
-if __name__ == "__main__":
-    """
-    testing
-    """
-    in_channels = 1
-    out_channels = 1
-    f_maps = 32
-    num_levels = 3
-    model = UNet3D(in_channels, out_channels, f_maps=f_maps, num_levels=num_levels, layer_order='cr')
-    print(model)
+# def get_model(config):
+#     def _model_class(class_name):
+#         m = importlib.import_module('pytorch3dunet.unet3d.model')
+#         clazz = getattr(m, class_name)
+#         return clazz
 
-    reso = 42
+#     assert 'model' in config, 'Could not find model configuration'
+#     model_config = config['model']
+#     model_class = _model_class(model_config['name'])
+#     return model_class(**model_config)
+
+
+# if __name__ == "__main__":
+#     """
+#     testing
+#     """
+#     in_channels = 1
+#     out_channels = 1
+#     f_maps = 32
+#     num_levels = 3
+#     model = UNet3D(in_channels, out_channels, f_maps=f_maps, num_levels=num_levels, layer_order='cr')
+#     print(model)
+
+#     reso = 42
     
-    import numpy as np
-    import torch
-    x = np.zeros((1, 1, reso, reso, reso))
-    x[:,:, int(reso/2-1), int(reso/2-1), int(reso/2-1)] = np.nan
-    x = torch.FloatTensor(x)
+#     import numpy as np
+#     import torch
+#     x = np.zeros((1, 1, reso, reso, reso))
+#     x[:,:, int(reso/2-1), int(reso/2-1), int(reso/2-1)] = np.nan
+#     x = torch.FloatTensor(x)
 
-    out = model(x)
-    print('%f'%(torch.sum(torch.isnan(out)).detach().cpu().numpy()/(reso*reso*reso)))
+#     out = model(x)
+#     print('%f'%(torch.sum(torch.isnan(out)).detach().cpu().numpy()/(reso*reso*reso)))
     

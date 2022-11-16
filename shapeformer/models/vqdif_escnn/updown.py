@@ -2,11 +2,11 @@
 Code from the 3D UNet implementation:
 https://github.com/wolny/pytorch-3dunet/
 '''
-import importlib
+# import importlib
 import torch
 import torch.nn as nn
-from torch.nn import functional as F
-from functools import partial
+# from torch.nn import functional as F
+# from functools import partial
 
 def number_of_features_per_level(init_channel_number, num_levels):
     return [init_channel_number * 2 ** k for k in range(num_levels)]
@@ -131,25 +131,25 @@ class Upsampler(nn.Module):
     def forward(self, x):
         return self.blocks.forward(x)
 
-if __name__ == "__main__":
-    """
-    testing
-    """
-    in_channels = 1
-    out_channels = 1
-    f_maps = 32
-    num_levels = 3
-    model = UNet3D(in_channels, out_channels, f_maps=f_maps, num_levels=num_levels, layer_order='cr')
-    print(model)
+# if __name__ == "__main__":
+#     """
+#     testing
+#     """
+#     in_channels = 1
+#     out_channels = 1
+#     f_maps = 32
+#     num_levels = 3
+#     model = UNet3D(in_channels, out_channels, f_maps=f_maps, num_levels=num_levels, layer_order='cr')
+#     print(model)
 
-    reso = 42
+#     reso = 42
     
-    import numpy as np
-    import torch
-    x = np.zeros((1, 1, reso, reso, reso))
-    x[:,:, int(reso/2-1), int(reso/2-1), int(reso/2-1)] = np.nan
-    x = torch.FloatTensor(x)
+#     import numpy as np
+#     import torch
+#     x = np.zeros((1, 1, reso, reso, reso))
+#     x[:,:, int(reso/2-1), int(reso/2-1), int(reso/2-1)] = np.nan
+#     x = torch.FloatTensor(x)
 
-    out = model(x)
-    print('%f'%(torch.sum(torch.isnan(out)).detach().cpu().numpy()/(reso*reso*reso)))
+#     out = model(x)
+#     print('%f'%(torch.sum(torch.isnan(out)).detach().cpu().numpy()/(reso*reso*reso)))
     

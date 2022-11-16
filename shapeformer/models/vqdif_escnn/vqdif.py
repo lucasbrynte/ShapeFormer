@@ -1,21 +1,21 @@
-import copy
+# import copy
 import torch
 import numpy as np
 import pytorch_lightning as pl
 import torch.nn.functional as F
 import torch.nn as nn
-from torch_scatter import scatter_max
+# from torch_scatter import scatter_max
 
 from xgutils import *
 from xgutils.vis import npfvis
 
-from einops.layers.torch import Rearrange, Reduce
+# from einops.layers.torch import Rearrange, Reduce
 
-from shapeformer.models import networks
-from shapeformer.models import pointnet
+# from shapeformer.models import networks
+# from shapeformer.models import pointnet
 from shapeformer.models.common import *
 
-from .quantizer import Quantizer
+# from .quantizer import Quantizer
 
 
 class VQDIF(pl.LightningModule):
