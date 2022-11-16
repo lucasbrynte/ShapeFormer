@@ -25,7 +25,7 @@ pl_model_opt:
         downsampler: True
         downsampler_kwargs: 
           in_channels: 32
-          downsample_steps: 2
+          downsample_steps: &updown_steps 2
     quantizer_opt:
       class: shapeformer.models.vqdif.quantizer.Quantizer
       kwargs:
@@ -48,7 +48,7 @@ pl_model_opt:
         upsampler: True
         upsampler_kwargs:
           in_channels: *vq_dim
-          upsampler_steps: 2
+          upsampler_steps: *updown_steps
     optim_opt:
       lr: .0001
       scheduler: 'StepLR'
