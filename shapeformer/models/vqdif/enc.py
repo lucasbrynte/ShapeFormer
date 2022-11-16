@@ -131,14 +131,16 @@ class LocalPoolPointnet(nn.Module):
         batch_size, T, D = p.size()
 
         # acquire the index for each point
-        coord = {}
-        index = {}
-        if 'grid' in self.plane_type:
-            # NOTE: coord['grid'] should be identical to "p_nor" in self.generate_grid_features().
-            # Basically, normalize_3d_coordinate() maps [-0.55, 0.55] linearly to [0, 1], and saturates coordinates beyond the limits.
-            coord['grid'] = normalize_3d_coordinate(p.clone(), padding=self.padding) # In & out: (B, N, 3)
-            # coordinate2index() determines linear voxel indices from the [0, 1]**3 coordinates.
-            index['grid'] = coordinate2index(coord['grid'], self.reso_grid, coord_type='3d', c2i_order=self.c2i_order) # In: (B, N, 3), out: (B, 1, N)
+        assert self.plane_type == 'grid'
+        # NOTE: coord['grid'] should be identical to "p_nor" in self.generate_grid_features().
+        # Basically, normalize_3d_coordinate() maps [-0.55, 0.55] linearly to [0, 1], and saturates coordinates beyond the limits.
+        coord = {
+            'grid': normalize_3d_coordinate(p.clone(), padding=self.padding), # In & out: (B, N, 3)
+        }
+        # coordinate2index() determines linear voxel indices from the [0, 1]**3 coordinates.
+        index = {
+            'grid': coordinate2index(coord['grid'], self.reso_grid, coord_type='3d', c2i_order=self.c2i_order), # In: (B, N, 3), out: (B, 1, N)
+        }
 
         net = self.fc_pos(p) # Simple linear layer acting on (B, N, 3) will regard first 2 dimensions as batch dimensions. Output: (B, N, C).
 
