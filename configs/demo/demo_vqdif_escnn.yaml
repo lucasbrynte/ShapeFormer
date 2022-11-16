@@ -1,4 +1,4 @@
-inherit_from: ../vqdif/shapenet_res16.yaml
+inherit_from: ../vqdif_escnn/shapenet_res16.yaml
 datamodule_opt:
   class: shapeformer.datamodule.DataModule
   kwargs:
@@ -16,9 +16,9 @@ datamodule_opt:
         subsample: False
 callbacks:
   vis_recon:
-    class: shapeformer.models.vqdif.vqdif.VisSparseRecon3D
+    class: shapeformer.models.vqdif_escnn.vqdif.VisSparseRecon3D
     kwargs:
-      data_dir: experiments/demo_vqdif/
+      data_dir: experiments/demo_vqdif_escnn/
 
       no_sanity_check: True
       every_n_epoch: 5

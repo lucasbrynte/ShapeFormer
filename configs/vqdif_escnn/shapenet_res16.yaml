@@ -1,22 +1,22 @@
 project_name: shapeformer
-expr_name: vqdif/shapenet_res16
+expr_name: vqdif_escnn/shapenet_res16
 pltrainer_opt:
   resume_from: 'latest' 
   gpus: [4] # can be [list of int],[int],or[str]
   logger: wandb
   logger_kwargs:
     mode: "disabled" # online, offline, disabled
-    tags: ["VQDIF", "shapenet"]
-    notes: "Train VQDIF on all categories of the imnet dataset (a subset of ShapeNet)."
+    tags: ["VQDIF_escnn", "shapenet"]
+    notes: "Train VQDIF_escnn on all categories of the imnet dataset (a subset of ShapeNet)."
     #id: "0"
   auto_lr_find: False
   check_val_every_n_epoch: 5
   max_epochs: 300
 pl_model_opt:
-  class: shapeformer.models.vqdif.vqdif.VQDIF
+  class: shapeformer.models.vqdif_escnn.vqdif.VQDIF
   kwargs:
     encoder_opt:
-      class: shapeformer.models.vqdif.enc.LocalPoolPointnet
+      class: shapeformer.models.vqdif_escnn.enc.LocalPoolPointnet
       kwargs:
         hidden_dim: 32
         plane_type: 'grid'
@@ -27,13 +27,13 @@ pl_model_opt:
           in_channels: 32
           downsample_steps: &updown_steps 2
     quantizer_opt:
-      class: shapeformer.models.vqdif.quantizer.Quantizer
+      class: shapeformer.models.vqdif_escnn.quantizer.Quantizer
       kwargs:
         vocab_size: 4096
         n_embd: &vq_dim 128
     vq_beta: .001
     decoder_opt:
-      class: shapeformer.models.vqdif.dec.LocalDecoder
+      class: shapeformer.models.vqdif_escnn.dec.LocalDecoder
       kwargs:
         sample_mode: bilinear # bilinear / nearest
         hidden_size: 32
@@ -86,7 +86,7 @@ datamodule_opt:
           kwargs: {radius: .4, context_N: 4096}
 callbacks:
   vis_recon:
-    class: shapeformer.models.vqdif.vqdif.VisSparseRecon3D
+    class: shapeformer.models.vqdif_escnn.vqdif.VisSparseRecon3D
     kwargs:
       no_sanity_check: True
       every_n_epoch: 5
