@@ -25,6 +25,7 @@ class LocalPoolPointnet(nn.Module):
         plane_type (str): feature type, 'xz' - 1-plane, ['xz', 'xy', 'yz'] - 3-plane, ['grid'] - 3D grid volume
         padding (float): conventional padding paramter of ONet for unit cube, so [-0.5, 0.5] -> [-0.55, 0.55]
         n_blocks (int): number of blocks ResNetBlockFC layers
+        voxel_relative_point_residuals (bool): weather to use voxel-center-to-point residuals rather than absolute position coordinates as point cloud input features
     '''
 
     def __init__(
