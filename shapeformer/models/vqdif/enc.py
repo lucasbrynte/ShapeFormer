@@ -28,8 +28,20 @@ class LocalPoolPointnet(nn.Module):
         n_blocks (int): number of blocks ResNetBlockFC layers
     '''
 
-    def __init__(self, c_dim=128, dim=3, hidden_dim=128, scatter_type='max', downsampler=False, downsampler_kwargs=None,
-                    c2i_order="original", grid_resolution=None, plane_type='grid', padding=0.1, n_blocks=5):
+    def __init__(
+        self,
+        c_dim = 128,
+        dim = 3,
+        hidden_dim = 128,
+        scatter_type = 'max',
+        downsampler = False,
+        downsampler_kwargs = None,
+        c2i_order = "original",
+        grid_resolution = None,
+        plane_type = 'grid',
+        padding = 0.1,
+        n_blocks = 5,
+    ):
         super().__init__()
         self.c_dim = c_dim
         self.c2i_order = c2i_order
