@@ -61,17 +61,16 @@ class LocalPoolPointnet(nn.Module):
         else:
             raise ValueError('incorrect scatter type')
 
-    def generate_grid_features(self, p, c):
-        # p: point positions, shape (B, N, 3)
+    def generate_grid_features(self, p_nor, c):
+        # p_nor: point positions, shape (B, N, 3)
         # c: point features, shape (B, N, C)
-        self.p_nor = p_nor = normalize_3d_coordinate(p.clone(), padding=self.padding)
         index = coordinate2index(p_nor, self.reso_grid, coord_type='3d', c2i_order=self.c2i_order)
         # scatter grid features from points
-        fea_grid = c.new_zeros(p.size(0), self.c_dim, self.reso_grid**3)
+        fea_grid = c.new_zeros(p_nor.size(0), self.c_dim, self.reso_grid**3)
         c = c.permute(0, 2, 1)
         # Go from sparse points to dense 64x64x64 voxels via mean-pooling:
         fea_grid = scatter_mean(c, index, out=fea_grid) # B x C x reso^3
-        fea_grid = fea_grid.reshape(p.size(0), self.c_dim, self.reso_grid, self.reso_grid, self.reso_grid) # (B, C, res, res, res)
+        fea_grid = fea_grid.reshape(p_nor.size(0), self.c_dim, self.reso_grid, self.reso_grid, self.reso_grid) # (B, C, res, res, res)
         self.pc_feature_grid = fea_grid.detach().clone()
 
         #if self.unet3d is not None:
@@ -90,7 +89,7 @@ class LocalPoolPointnet(nn.Module):
         #print( len(torch.unique(mask_ind, axis=-1)) )
         inds_flat     = mask_ind.view(-1, mask_ind.shape[-1]) # Reshape (B, N, 3) -> (B*N, 3)
         binds = torch.repeat_interleave(torch.arange(mask_ind.shape[0]).type_as(mask_ind).long(), mask_ind.shape[1]) # Flat indices for which "sample index" in the batch each point belongs to. Shape: (B*N, 3)
-        mask = torch.zeros(p.shape[0], out_reso_grid, out_reso_grid, out_reso_grid).bool() # (B, res, res, res)
+        mask = torch.zeros(p_nor.shape[0], out_reso_grid, out_reso_grid, out_reso_grid).bool() # (B, res, res, res)
         # Using the flat indices along each dimension, set all non-empty entries in the mask to true (non-empty meaning there are points):
         mask[binds, inds_flat[:,2], inds_flat[:,1], inds_flat[:,0]] = True
 
@@ -160,9 +159,8 @@ class LocalPoolPointnet(nn.Module):
         c = self.fc_c(net) # In / out: (B, N, C)
 
         # Acquire dense voxel features by per-voxel mean pooling of point features (never max pooling here!), followed by 3D-CNN downsampling:
-        # p are original 3D points, passed to generate_grid_features() together with extracted PointNet features.
         # The returned tensor fea is a dense, 4X downsampled, feature grid, together with a mask to determine where there are any points present:
-        fea, mask = self.generate_grid_features(p, c)
+        fea, mask = self.generate_grid_features(coord['grid'], c)
         # Intermediate resolution of resulting grid: 64x64x64 (corresponding to all local point-pooling operations). Resulting downsampled resolution: 16x16x16.
         
         #sparse_fea = self.dense2sparse(p, fea)
