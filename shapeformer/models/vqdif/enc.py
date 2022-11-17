@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from .layers import ResnetBlockFC
 from torch_scatter import scatter_mean, scatter_max
 from .common import coordinate2index, normalize_coordinate, normalize_3d_coordinate, map2local
+from .common import nearest_voxel_center_coordinates
 #from .encoder.unet import UNet
 from .unet3d import UNet3D
 from .updown import Downsampler
@@ -41,10 +42,13 @@ class LocalPoolPointnet(nn.Module):
         plane_type = 'grid',
         padding = 0.1,
         n_blocks = 5,
+        voxel_relative_point_residuals = False,
     ):
         super().__init__()
         self.c_dim = c_dim
         self.c2i_order = c2i_order
+        self.voxel_relative_point_residuals = voxel_relative_point_residuals
+
         self.fc_pos = nn.Linear(dim, 2*hidden_dim)
         self.blocks = nn.ModuleList([
             ResnetBlockFC(2*hidden_dim, hidden_dim) for i in range(n_blocks)
@@ -153,7 +157,17 @@ class LocalPoolPointnet(nn.Module):
             'grid': coordinate2index(coord['grid'], self.reso_grid, coord_type='3d', c2i_order=self.c2i_order), # In: (B, N, 3), out: (B, 1, N)
         }
 
-        net = self.fc_pos(p) # Simple linear layer acting on (B, N, 3) will regard first 2 dimensions as batch dimensions. Output: (B, N, C).
+        # Build residual vectors, relative to each voxel center
+        if self.voxel_relative_point_residuals:
+            coord['grid'] -= nearest_voxel_center_coordinates(coord['grid'], self.reso_grid)
+
+        # Apply per-point MLP on point cloud
+        if self.voxel_relative_point_residuals:
+            # Voxel-center-to-point residual vectors are used as input features
+            net = self.fc_pos(coord['grid']) # Simple linear layer acting on (B, N, 3) will regard first 2 dimensions as batch dimensions. Output: (B, N, C).
+        else:
+            # Absolute positions are used as input features
+            net = self.fc_pos(p) # Simple linear layer acting on (B, N, 3) will regard first 2 dimensions as batch dimensions. Output: (B, N, C).
 
         # Point-wise residual blocks, interleaved by per-voxel mean/max-pooling.
         # Each block is a 2-layer MLP with residual connection, and has 2*hidden_dim input channels and hidden_dim output channels.

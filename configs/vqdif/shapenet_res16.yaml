@@ -26,6 +26,8 @@ pl_model_opt:
         downsampler_kwargs: 
           in_channels: 32
           downsample_steps: &updown_steps 2
+        voxel_relative_point_residuals: False
+        # voxel_relative_point_residuals: True
     quantizer_opt:
       class: shapeformer.models.vqdif.quantizer.Quantizer
       kwargs:

@@ -302,6 +302,24 @@ def normalize_coord(p, vol_range, plane='xz'):
         x = p    
     return x
 
+def nearest_voxel_center_coordinates(p_nor, reso):
+    """
+    Maps coordinates, normalized to [0, 1), to their nearest voxel centers, assuming a uniform grid on the unit cube [0, 1]^3, with the given resolution.
+    """
+    assert torch.all(p_nor >= 0)
+    assert torch.all(p_nor < 1)
+
+    # Truncate points to retrieve the indices of each nearest voxel
+    voxel_indices = (p_nor * reso).long()
+
+    assert torch.all(voxel_indices >= 0)
+    assert torch.all(voxel_indices < reso)
+
+    # Retrieve voxel center coordinates, expressed in the point coordinate system
+    voxel_center_coordinates = ( voxel_indices.float() + 0.5 ) / reso
+
+    return voxel_center_coordinates
+
 def coordinate2index(x, reso, coord_type='2d', c2i_order="original"):
     ''' Normalize coordinate to [0, 1] for unit cube experiments.
         Corresponds to our 3D model
