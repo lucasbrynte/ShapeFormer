@@ -26,6 +26,7 @@ class LocalPoolPointnet(nn.Module):
         padding (float): conventional padding paramter of ONet for unit cube, so [-0.5, 0.5] -> [-0.55, 0.55]
         n_blocks (int): number of blocks ResNetBlockFC layers
         voxel_relative_point_residuals (bool): weather to use voxel-center-to-point residuals rather than absolute position coordinates as point cloud input features
+        escnn_global_opts (dict): Global options related to escnn / equivariance
     '''
 
     def __init__(
@@ -42,8 +43,10 @@ class LocalPoolPointnet(nn.Module):
         padding = 0.1,
         n_blocks = 5,
         voxel_relative_point_residuals = False,
+        escnn_global_opts = None,
     ):
         super().__init__()
+        self.escnn_global_opts = escnn_global_opts
         self.c_dim = c_dim
         self.c2i_order = c2i_order
         self.voxel_relative_point_residuals = voxel_relative_point_residuals

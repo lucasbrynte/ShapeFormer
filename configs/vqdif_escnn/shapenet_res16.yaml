@@ -14,6 +14,8 @@ pltrainer_opt:
   max_epochs: 300
 pl_model_opt:
   class: shapeformer.models.vqdif_escnn.vqdif.VQDIF
+  escnn_global_opts:
+    continuous_representation: True
   kwargs:
     encoder_opt:
       class: shapeformer.models.vqdif_escnn.enc.LocalPoolPointnet

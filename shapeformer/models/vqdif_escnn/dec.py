@@ -24,6 +24,7 @@ class LocalDecoder(nn.Module):
         leaky (bool): whether to use leaky ReLUs
         sample_mode (str): sampling feature strategy, bilinear|nearest
         padding (float): conventional padding paramter of ONet for unit cube, so [-0.5, 0.5] -> [-0.55, 0.55]
+        escnn_global_opts (dict): Global options related to escnn / equivariance
     '''
 
     def __init__(
@@ -39,8 +40,10 @@ class LocalDecoder(nn.Module):
         leaky = False,
         sample_mode = 'bilinear',
         padding = 0.1,
+        escnn_global_opts = None,
     ):
         super().__init__()
+        self.escnn_global_opts = escnn_global_opts
         self.c_dim = c_dim
         self.n_blocks = n_blocks
         if unet3d:

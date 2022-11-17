@@ -29,16 +29,20 @@ class VQDIF(pl.LightningModule):
         optim_opt = None,
         ckpt_path = None,
         opt = None,
+        escnn_global_opts = None
     ):
         super().__init__()
         self.__dict__.update(locals())
+        assert self.escnn_global_opts['continuous_representation'], 'Discretized rotation representation not yet supported.'
         self.save_hyperparameters()
 
-        self.encoder = sysutil.instantiate_from_opt(opt=self.encoder_opt)
-        self.decoder = sysutil.instantiate_from_opt(opt=self.decoder_opt)
+        self.encoder = sysutil.instantiate_from_opt(opt=self.encoder_opt, escnn_global_opts=self.escnn_global_opts)
+        self.decoder = sysutil.instantiate_from_opt(opt=self.decoder_opt, escnn_global_opts=self.escnn_global_opts)
         if quantizer_opt is not None:
             self.quantizer = sysutil.instantiate_from_opt(
-                opt=self.quantizer_opt)
+                opt = self.quantizer_opt,
+                escnn_global_opts = self.escnn_global_opts,
+            )
         self.criterion = VQLoss(beta=vq_beta)
 
     def encode(self, Xbd, **kwargs):

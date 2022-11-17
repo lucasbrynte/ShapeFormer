@@ -10,8 +10,10 @@ class Quantizer(nn.Module):
         n_embd,
         gamma = 0.99,
         x_dim = 3,
+        escnn_global_opts = None,
     ):
         super().__init__()
+        self.escnn_global_opts = escnn_global_opts
         self.n_embd = n_embd
         self.vocab_size = vocab_size
         self.gamma = gamma
