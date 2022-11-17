@@ -4,15 +4,21 @@ import torch.nn.functional as F
 
 class Quantizer(nn.Module):
 
-    def __init__(self, vocab_size, n_embd, gamma=0.99, x_dim=3):
+    def __init__(
+        self,
+        vocab_size,
+        n_embd,
+        gamma = 0.99,
+        x_dim = 3,
+    ):
         super().__init__()
-        self.embedding = nn.Embedding(vocab_size, n_embd)
-        self.embedding.weight.requires_grad = False
-
         self.n_embd = n_embd
         self.vocab_size = vocab_size
         self.gamma = gamma
         self.x_dim = x_dim
+
+        self.embedding = nn.Embedding(vocab_size, n_embd)
+        self.embedding.weight.requires_grad = False
 
         self.register_buffer('N', torch.zeros(vocab_size))
         self.register_buffer('z_avg', self.embedding.weight.data.clone())

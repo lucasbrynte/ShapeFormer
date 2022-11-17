@@ -26,8 +26,20 @@ class LocalDecoder(nn.Module):
         padding (float): conventional padding paramter of ONet for unit cube, so [-0.5, 0.5] -> [-0.55, 0.55]
     '''
 
-    def __init__(self, dim=3, c_dim=128, unet3d=False, unet3d_kwargs=None, upsampler=False, upsampler_kwargs=None,
-                 hidden_size=256, n_blocks=5, leaky=False, sample_mode='bilinear', padding=0.1):
+    def __init__(
+        self,
+        dim = 3,
+        c_dim = 128,
+        unet3d = False,
+        unet3d_kwargs = None,
+        upsampler = False,
+        upsampler_kwargs = None,
+        hidden_size = 256,
+        n_blocks = 5,
+        leaky = False,
+        sample_mode = 'bilinear',
+        padding = 0.1,
+    ):
         super().__init__()
         self.c_dim = c_dim
         self.n_blocks = n_blocks
