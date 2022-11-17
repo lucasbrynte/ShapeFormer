@@ -19,8 +19,17 @@ from shapeformer.models.common import *
 
 
 class VQDIF(pl.LightningModule):
-    def __init__(self, Xct_as_Xbd=False, encoder_opt=None, decoder_opt=None, quantizer_opt=None, vq_beta=1.,
-                 optim_opt=None, ckpt_path=None, opt=None):
+    def __init__(
+        self,
+        Xct_as_Xbd = False,
+        encoder_opt = None,
+        decoder_opt = None,
+        quantizer_opt = None,
+        vq_beta = 1.,
+        optim_opt = None,
+        ckpt_path = None,
+        opt = None,
+    ):
         super().__init__()
         self.__dict__.update(locals())
         self.save_hyperparameters()
